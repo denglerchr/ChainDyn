@@ -1,0 +1,7 @@
+name = "ChainDyn"
+uuid = "e2a1edfe-77c0-11e9-1bb8-6bbdf3172b25"
+authors = ["Christian Dengler <c.dengler@tum.de>"]
+version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
