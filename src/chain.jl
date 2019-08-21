@@ -2,7 +2,7 @@
 Use this structure to simulate chain dynamics without motor dynamics. Use ChainMotor if you want
 to include motor dynamics, but this will turn simulations lower
 """
-struct Chain{T}
+struct Chain{T} <: AbstractChain
     q::Array{T, 1} #generalised coordinates. Contains [x0, alpha_0, alpha_1, alpha_n], the pos of the cart and all link-angles
     u::Array{T, 1} #time derivative of q
     massmat::Array{T, 2}

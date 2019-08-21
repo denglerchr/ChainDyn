@@ -2,8 +2,8 @@
 Use this structure to simulate chain and motor dynamics. Stiff system, use just Chain to have
 faster simulations.
 """
-struct ChainMotor{T}
-    i::Array{T, 1}
+struct ChainMotor{T} <: AbstractChain
+    i::Array{T, 1} # Motor states [i, omega]. i is current and omega is rotational speed
     q::Array{T, 1} #generalised coordinates. Contains [x0, alpha_0, alpha_1, alpha_n], the pos of the cart and all link-angles
     u::Array{T, 1} #time derivative of q
     massmat::Array{T, 2}
@@ -11,7 +11,7 @@ struct ChainMotor{T}
 end
 
 function ChainMotor(T::Type)
-    i = zeros(T, 2)  # Motor states [i, omega]. i is current and omega is rotational speed
+    i = zeros(T, 1)  # Motor states [i, omega]. i is current and omega is rotational speed
     q = zeros(T, 21) #cart position and all angles are zero
     u = zeros(T, 21) #all velocities are zero
     massmat = zeros(T, 21, 21) #mass matrix, memory is overwritten at each forward simulation step
