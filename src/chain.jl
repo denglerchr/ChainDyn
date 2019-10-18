@@ -40,7 +40,7 @@ function dxdt_chain!(chain::Chain{T}, u::T) where {T}
     r = T( 0.0239 )  #
     R = T( 1.35 )  # armature resistance
     mcart = T( 29.691 )
-    mchain = T( 2.3*1.178/20 )
+    mchain = T( 2.3*1.178 )
     Ja = T( 24.13*10^-5 )
     Jred = T( Ja + (r/i)^2*( mcart + mchain ))  # reduced moment of inertia
 
@@ -84,7 +84,7 @@ function chainDAE!(out::AbstractVector, dx::AbstractVector, u::Number, chain::Ch
     r::T = 0.0239 #
     R::T = 1.35# armature resistance
     mcart::T = 29.691
-    mchain::T = 2.3*1.178/20
+    mchain::T = 2.3*1.178
     Ja::T = 24.13*10^-5
     Jred::T = Ja + (r/i)^2*( mcart + mchain )# reduced moment of inertia
 

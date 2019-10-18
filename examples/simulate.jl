@@ -1,4 +1,4 @@
-using ChainDyn, DifferentialEquations
+using ChainDyn, DifferentialEquations, Sundials
 
 function urec(t::T) where {T}
     tau::T = mod(t, 6)
@@ -24,7 +24,7 @@ tspan = (0.0, 10.0)
 
 dyn1(out, dx, x, p, t) = chainDAE!(out, dx, x, urec(t), chain)
 prob = DAEProblem(dyn1, dx0, x0, tspan, differential_vars = differential_vars)
-sol1 = solve(prob, ImplicitMidpoint(), alg_hints = :stiff)
+sol1 = solve(prob, IDA(), alg_hints = :stiff)
 
 # Visualize
 using ModelVisualisations, Plots
@@ -55,7 +55,7 @@ tspan = (0.0, 10.0)
 
 dyn1(out, dx, x, p, t) = chainDAE!(out, dx, x, urec(t), chain)
 prob = DAEProblem(dyn1, dx0, x0, tspan, differential_vars = differential_vars)
-sol1 = solve(prob, ImplicitMidpoint())
+sol1 = solve(prob, IDA())
 
 # Visualize
 using ModelVisualisations, Plots
