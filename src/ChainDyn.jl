@@ -4,8 +4,11 @@ using LinearAlgebra
 
 abstract type AbstractChain end # general chain type
 
+include("friction.jl")
+
 include("forcevec20.jl")
 include("massmat20.jl")
+
 include("chainmotor.jl")
 export ChainMotor, dxdt_chainmotor
 

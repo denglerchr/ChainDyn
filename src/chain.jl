@@ -7,15 +7,16 @@ struct Chain{T} <: AbstractChain
     u::Array{T, 1} #time derivative of q
     massmat::Array{T, 2}
     fvec::Array{T, 1}
+    friction_link::T
 end
 
 
-function Chain(T::Type)
+function Chain(T::Type; friction_link = 4.094E-3)
     q = zeros(T, 21) #cart position and all angles are zero
     u = zeros(T, 21) #all velocities are zero
     massmat = zeros(T, 21, 21) #mass matrix, memory is overwritten at each forward simulation step
     fvec = zeros(T, 21) #force vector, memory is overwritten at each forward simulation step
-    return Chain{T}(q, u, massmat, fvec)
+    return Chain{T}(q, u, massmat, fvec, T(friction_link))
 end
 
 Chain() = Chain(Float64)
@@ -53,9 +54,9 @@ function dxdt_chain!(chain::Chain{T}, u::T) where {T}
     quf = vcat(chain.q, chain.u, Fout)
     massmat20!(chain.massmat, quf)
     symmassmat = Symmetric(chain.massmat, :U)
-    forcevec20!(chain.fvec, quf)
+    forcevec20!(chain.fvec, quf, chain.friction_link)
     dq = chain.u
-    du = symmassmat\chain.fvec
+    du = cholesky(symmassmat)\chain.fvec
 
     return vcat(dq, du)
 end
@@ -97,7 +98,7 @@ function chainDAE!(out::AbstractVector, dx::AbstractVector, u::Number, chain::Ch
     quf = vcat(chain.q, chain.u, Fout)
     massmat20!(chain.massmat, quf)
     symmassmat = Symmetric(chain.massmat, :U)
-    forcevec20!(chain.fvec, quf)
+    forcevec20!(chain.fvec, quf, chain.friction_link)
     dq = chain.u
 
     # For DAE formulation

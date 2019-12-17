@@ -9,5 +9,8 @@ xtmotor = zeros(dtype, 43)
 ut = dtype(20.0)
 dt = dtype(0.01)
 
-xt2 = chain_odestep(xt, ut, dt, chain)
-xt2motor = chain_odestep(xtmotor, ut, dt, chainmotor)
+@time xt2 = chain_odestep_ODE(xt, ut, dt, chain)
+@time xt2motor = chain_odestep_ODE(xtmotor, ut, dt, chainmotor)
+
+@time xt2 = chain_odestep_DAE(xt, ut, dt, chain)
+@time xt2motor = chain_odestep_DAE(xtmotor, ut, dt, chainmotor)

@@ -8,15 +8,16 @@ struct ChainMotor{T} <: AbstractChain
     u::Array{T, 1} #time derivative of q
     massmat::Array{T, 2}
     fvec::Array{T, 1}
+    friction_link::T
 end
 
-function ChainMotor(T::Type)
+function ChainMotor(T::Type; friction_link = 4.094E-3)
     i = zeros(T, 1)  # Motor states [i, omega]. i is current and omega is rotational speed
     q = zeros(T, 21) #cart position and all angles are zero
     u = zeros(T, 21) #all velocities are zero
     massmat = zeros(T, 21, 21) #mass matrix, memory is overwritten at each forward simulation step
     fvec = zeros(T, 21) #force vector, memory is overwritten at each forward simulation step
-    return ChainMotor{T}(i, q, u, massmat, fvec)
+    return ChainMotor{T}(i, q, u, massmat, fvec, T(friction_link))
 end
 
 ChainMotor() = ChainMotor(Float64)
@@ -47,9 +48,6 @@ function dxdt_chain!(chain::ChainMotor{T}, u::T) where {T}
     Ja = T( 24.13*10^-5 )
     Jred = T( Ja + (r/i)^2*( mcart + mchain ))  # reduced moment of inertia
 
-    # Use symmetry of the mass matrix
-    symmassmat = Symmetric(chain.massmat, :U)
-
     # Motor to chain
     Mm = k2*chain.i[1] # k2*i is motor moment
     Fout = i/r*Mm # force by motor on the chain
@@ -57,9 +55,13 @@ function dxdt_chain!(chain::ChainMotor{T}, u::T) where {T}
     # Chain
     quf = vcat(chain.q, chain.u, Fout)
     massmat20!(chain.massmat, quf)
-    forcevec20!(chain.fvec, quf)
+    forcevec20!(chain.fvec, quf, chain.friction_link)
+
+    # Use symmetry of the mass matrix
+    symmassmat = Symmetric(chain.massmat, :U)
+
     dq = chain.u
-    du = symmassmat\chain.fvec
+    du = cholesky(symmassmat)\chain.fvec
 
     omega = chain.u[1]*i/r
     di::T = -R/L * chain.i[1] - k1/L * omega + u/L
@@ -105,7 +107,7 @@ function chainDAE!(out::AbstractVector, dx::AbstractVector, u::Number, chain::Ch
     quf = vcat(chain.q, chain.u, Fout)
     massmat20!(chain.massmat, quf)
     symmassmat = Symmetric(chain.massmat, :U)
-    forcevec20!(chain.fvec, quf)
+    forcevec20!(chain.fvec, quf, chain.friction_link)
     dq = chain.u
 
     omega = chain.u[1]*i/r

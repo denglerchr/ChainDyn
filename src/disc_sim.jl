@@ -1,15 +1,15 @@
-using DifferentialEquations, Sundials
+using OrdinaryDiffEq, Sundials
 
-function chain_odestep_DAE(xt::AbstractVector{T}, ut::T, dt::T, chain::ChainDyn.AbstractChain = Chain(T)) where {T<:Real}
+function chain_odestep_DAE(xt::AbstractVector{T}, ut::T, dt::T, chain::ChainDyn.AbstractChain = Chain(T); alg = IDA()) where {T<:Real}
     # Define ode problem
     tspan = (zero(T), dt)
     differential_vars = [true for i = 1:length(xt)]
     dx0 = zeros(T, length(xt))
     dyn1(out, dx, x, p, t) = chainDAE!(out, dx, x, ut, chain)
-    prob = DAEProblem(dyn1, dx0, xt, tspan, differential_vars = differential_vars)
+    prob = DAEProblem{true}(dyn1, dx0, xt, tspan, differential_vars = differential_vars)
 
     # solve the problem
-    sol = solve(prob, IDA(); alg_hints = :stiff)
+    sol = solve(prob, alg; alg_hints = :stiff)
 
     #return last state
     return sol.u[end]

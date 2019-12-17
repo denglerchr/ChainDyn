@@ -12,7 +12,7 @@ function getendpoint(chain::AbstractChain, dtype = eltype(chain.q))
     return Out_x, Out_y
 end
 
-function getendvelocity(c::Chain, dtype = eltype(c.u))
+function getendvelocity(c::Chain, dtype::Type = eltype(c.u))
     l_link = dtype(1.178/20)
     v::dtype = c.u[1]
     for i = 2:length(c.u)
@@ -34,5 +34,5 @@ function getendvelocity(x::Vector{T}) where {T<:Number}
     c = Chain(T)
     c.q .= x[1:21]
     c.u .= x[22:end]
-    return getendvelocity(c, T)  
+    return getendvelocity(c, T)
 end
